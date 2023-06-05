@@ -15,15 +15,7 @@ begin
 
 	--ver clock
 
-
-	if (ALUControlOut = "11") then
-		--cita todas as instrucoes tipo R
-	
-	else
-		ALUOut <= dado_a + dado_b when ALUControlOut = "00" else
-			dado_a - dado_b when ALUControlOut = "01" else
-			dado_a << shamt when ALUControlOut = "10";
-	end if;
+	--colocar os ifs para cada tipo de operacao
 
 	zero <= '1' when ALUOut = "0" else 
 		'0';

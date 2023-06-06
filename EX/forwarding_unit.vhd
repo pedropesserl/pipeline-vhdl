@@ -9,6 +9,7 @@ entity forwarding_unit is port(
 
 	forwardA, forwardB				: out std_logic_vector(1 downto 0)
 );
+end forwarding_unit;
 
 architecture Behavioral of forwarding_unit is
 begin 

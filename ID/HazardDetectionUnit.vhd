@@ -6,7 +6,7 @@ entity HazardDetectionUnit is port(
 	ID_EX_MemRead				:in std_logic;
 	ID_EX_RD				:in std_logic_vector(1 downto 0);
 	Instruction				: in std_logic_vector(15 downto 0);
-	PCWrite, IF_ID_Write, Stall_Mux		: out std_logic;
+	PCWrite, IF_ID_Write, Stall_Mux		: out std_logic
 );
 
 --stall se: 

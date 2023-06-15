@@ -3,8 +3,8 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_signed.all;
 
 entity ControlUnit is port(
-	OPCode 				: in std_logic_vector(2 downto 0);
-	memRead, memWrite, memtoReg,
+	OPCode				: in std_logic_vector(2 downto 0);
+	MemRead, MemWrite, MemtoReg,
 	RegWrite, RegDest, Branch 	: out std_logic;
 	ALUOp 				: out std_logic_vector(2 downto 0)
 );

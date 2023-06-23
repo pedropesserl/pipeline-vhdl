@@ -3,9 +3,9 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_signed.all;
 
 entity HazardDetectionUnit is port(
-	EX_MemRead				:in std_logic;
-	EX_Rd					:in std_logic_vector(1 downto 0);
-	ID_Instruction				: in std_logic_vector(15 downto 0);
+	EX_MemRead							:in std_logic;
+	EX_Rd								:in std_logic_vector(1 downto 0);
+	ID_Instruction						: in std_logic_vector(15 downto 0);
 	PCWrite, IF_ID_Write, Stall_Mux		: out std_logic
 );
 end HazardDetectionUnit;

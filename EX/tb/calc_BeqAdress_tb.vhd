@@ -4,13 +4,13 @@
 --
 -- Create Date:   15:58:13 06/19/2023
 -- Design Name:   
--- Module Name:   /home/luize/Pipiline/pipeline-vhdl/EX/tb/calc_BeqAdress.vhd
+-- Module Name:   /home/luize/Pipiline/pipeline-vhdl/EX/tb/calc_BeqAddress.vhd
 -- Project Name:  Pipiline
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: calc_BeqAdress
+-- VHDL Test Bench Created by ISE for module: calc_BeqAddress
 -- 
 -- Dependencies:
 -- 
@@ -33,14 +33,14 @@ use ieee.numeric_std.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY calc_BeqAdress_tb IS
-END calc_BeqAdress_tb;
+ENTITY calc_BeqAddress_tb IS
+END calc_BeqAddress_tb;
  
-ARCHITECTURE behavior OF calc_BeqAdress_tb IS 
+ARCHITECTURE behavior OF calc_BeqAddress_tb IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT calc_BeqAdress
+    COMPONENT calc_BeqAddress
     PORT(
          EX_NewPC : IN  std_logic_vector(15 downto 0);
          EX_extended_imm : IN  std_logic_vector(15 downto 0);
@@ -75,7 +75,7 @@ ARCHITECTURE behavior OF calc_BeqAdress_tb IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: calc_BeqAdress PORT MAP (
+   uut: calc_BeqAddress PORT MAP (
           EX_NewPC => EX_NewPC,
           EX_extended_imm => EX_extended_imm,
           BeqAddress => BeqAddress

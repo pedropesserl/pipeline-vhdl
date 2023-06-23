@@ -17,7 +17,7 @@ begin
 
 	process(clk, MEM_MemWrite, MEM_WriteData, MEM_ALUOut)	--writes only on rising edge of clock
 	begin 
-		if (rising_edge(clk)) and  (MEM_MemWrite = '1') then
+		if ((rising_edge(clk)) and (MEM_MemWrite = '1')) then
 			memory(to_integer(unsigned(MEM_ALUOut))) <= MEM_WriteData;
 		end if;
 	end process;

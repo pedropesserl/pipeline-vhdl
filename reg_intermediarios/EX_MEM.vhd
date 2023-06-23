@@ -10,7 +10,7 @@ entity EX_MEM is port(
 
 	-- info from ID/EX
 	EX_MemRead, EX_MemWrite, EX_MemtoReg,
-	EX_RegWrite, EX_Branch,					: in std_logic;
+	EX_RegWrite, EX_Branch					: in std_logic;
 	EX_WriteData 						: in std_logic_vector(15 downto 0);
 
 	-- output
@@ -24,7 +24,8 @@ end EX_MEM;
 
 architecture Behavioral of EX_MEM is 
 begin 
-	process(clk) is 
+	process(clk) is
+	begin
 		if rising_edge(clk) then 
 			MEM_BeqAddress <= BeqAddress;
 			MEM_ALUOut <= ALUOut;

@@ -18,7 +18,7 @@ architecture Behavioral of Display is
     );
     end component;
     type Display_type is array (0 to 3) of std_logic_vector(6 downto 0);
-    signal Display_out: Display_type := (others => (others => "0"));
+    signal Display_out: Display_type := (others => (others => '0'));
 begin
     gen_chars: for i in 0 to 3 generate
         c: Display_7_seg port map(

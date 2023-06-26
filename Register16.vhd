@@ -13,7 +13,7 @@ architecture Behavioral of Register16 is
 begin
     process(clk, Write_Enable) is
 	begin
-        if falling_edge(clk) and Write_Enable = '1' then
+        if falling_edge(clk) and Write_Enable = "1" then
 		    Data_out <= Data_in;
         end if;
     end process;

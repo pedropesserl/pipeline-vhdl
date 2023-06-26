@@ -3,15 +3,15 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity Display_7_seg is port(
-    Data_in          : in std_logic_vector(3 downto 0);
-    Write_Enable, clk: in std_logic;
+    DataIn          : in std_logic_vector(3 downto 0);
+    WriteEnable, clk: in std_logic;
     segments         : out std_logic_vector(6 downto 0);
 );
 end Display_7_seg;
 
 architecture Behavioral of Display is
 begin
-    process(clk, Write_Enable) is
+    process(clk, WriteEnable) is
     begin
         if rising_edge(clk) and Write_Enable = '1' then
             case Data is

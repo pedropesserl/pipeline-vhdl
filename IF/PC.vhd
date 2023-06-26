@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity PC is port(
-        clk, MEM_Branch, MEM_Zero           : in std_logic;
+        clk, MEM_Branch, MEM_Zero, PCWrite  : in std_logic;
         MEM_BeqAddress, NewPC               : in std_logic_vector(15 downto 0);
 
         CurrPC                              : out std_logic_vector(15 downto 0)
@@ -19,7 +19,7 @@ begin
     -- Add if in the rising edge
     process(clk)
     begin
-        if rising_edge(clk) then
+        if (rising_edge(clk) && (PCWrite = '1')) then
             CurrPC <= mux_out;
         end if;
     end process;

@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity RegisterBank is port(
     Rs, Rt, Rd, Data: in std_logic_vector(15 downto 0);
     RegWrite, clk   : in std_logic;
-    DataA, DataB    : out std_logic_vector(15 downto 0);
+    DataA, DataB    : out std_logic_vector(15 downto 0)
 );
 end RegisterBank;
 
@@ -13,11 +13,11 @@ architecture Behavioral of RegisterBank is
     component Register16 is port(
         Data_in          : in std_logic_vector(15 downto 0);
         Write_Enable, clk: in std_logic;
-        Data_out         : out std_logic_vector(15 downto 0);
+        Data_out         : out std_logic_vector(15 downto 0)
     );
     end component;
 
-    signal WE     : std_logic(3 downto 0);
+    signal WE     : std_logic_vector(3 downto 0);
     signal Reg_out: array (0 to 3) of std_logic_vector(15 downto 0);
 begin
     with Rd select WE <=
@@ -31,7 +31,7 @@ begin
             clk => clk;
             Data_in => Data;
             Write_Enable => WE(i);
-            Data_out => Reg_out(i);
+            Data_out => Reg_out(i)
         );
     end generate;
 

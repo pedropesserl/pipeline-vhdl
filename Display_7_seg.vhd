@@ -13,7 +13,7 @@ architecture Behavioral of Display is
 begin
     process(clk, Write_Enable) is
     begin
-        if rising_edge(clk) and Write_Enable = '1' then
+        if rising_edge(clk) and Write_Enable = "1" then
             case Data is
                 -- presume que os segmentos são ativos em 0
                 when "0000" => segments <= "0000001"; -- 0

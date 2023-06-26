@@ -17,29 +17,19 @@ architecture Behavioral of Display is
         segments         : out std_logic_vector(6 downto 0);
     );
     end component;
+    type Display_type is array (0 to 3) of std_logic_vector(6 downto 0);
+    signal Display_out: Display_type := (others => (others => "0"));
 begin
-    c0: Display_7_seg port map (
-        clk => clk,
-        Data_in => Data(3 downto 0),
-        Write_Enable => Display_Enable,
-        segments => Char0
-    );
-    c1: Display_7_seg port map (
-        clk => clk,
-        Data_in => Data(7 downto 4),
-        Write_Enable => Display_Enable,
-        segments => Char1
-    );
-    c2: Display_7_seg port map (
-        clk => clk,
-        Data_in => Data(11 downto 8),
-        Write_Enable => Display_Enable,
-        segments => Char2
-    );
-    c3: Display_7_seg port map (
-        clk => clk,
-        Data_in => Data(15 downto 12),
-        Write_Enable => Display_Enable,
-        segments => Char3
-    );
+    gen_chars: for i in 0 to 3 generate
+        c: Display_7_seg port map(
+            clk => clk,
+            Data_in => Data(i+3 downto i),
+            Write_Enable => Display_Enable,
+            segments => Display_out(i)
+        );
+    end generate;
+    Char0 <= Display_out(3 downto 0);
+    Char1 <= Display_out(7 downto 4);
+    Char2 <= Display_out(11 downto 8);
+    Char3 <= Display_out(15 downto 12);
 end Behavioral;

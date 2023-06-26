@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity Display_7_seg is port(
     DataIn          : in std_logic_vector(3 downto 0);
     WriteEnable, clk: in std_logic;
-    segments         : out std_logic_vector(6 downto 0);
+    segments        : out std_logic_vector(6 downto 0)
 );
 end Display_7_seg;
 

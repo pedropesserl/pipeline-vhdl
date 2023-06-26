@@ -14,7 +14,7 @@ architecture Behavioral of Display is
     component Display_7_seg is port(
         DataIn          : in std_logic_vector(3 downto 0);
         WriteEnable, clk: in std_logic;
-        segments         : out std_logic_vector(6 downto 0);
+        segments        : out std_logic_vector(6 downto 0);
     );
     end component;
     type Display_type is array (0 to 3) of std_logic_vector(6 downto 0);

@@ -16,6 +16,7 @@ begin
 	begin 
 
 		if((EX_MemRead = '1') and 
+            -- 
 			(ID_Instruction(15 downto 13) = "0") and
 			((ID_Instruction(12 downto 11) = EX_Rd) or 
 			(ID_Instruction(10 downto 9) = EX_Rd))
@@ -23,7 +24,10 @@ begin
 			Stall_Mux <= '1';
 			PCWrite <= '0';
 			IF_ID_Write <= '0';
-		elsif ((EX_MemRead = '1') and (ID_Instruction(15 downto 13) = "1") and (ID_Instruction(12 downto 11) = EX_Rd)) then
+		elsif ((EX_MemRead = '1') and
+            (ID_Instruction(15 downto 13) = "1") and
+            (ID_Instruction(12 downto 11) = EX_Rd)
+        ) then
 			Stall_Mux <= '1';
 			PCWrite <= '0';
 			IF_ID_Write <= '0';

@@ -23,6 +23,6 @@ begin
 	end process;
 
 	ReadData <= memory(to_integer(unsigned(MEM_ALUOut))) when MEM_MemRead = '1' else 
-		(others => '0'); 
+		(others => 'Z'); 
 
 end Behavioral;

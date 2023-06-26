@@ -2,16 +2,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_signed.all;
 
-entity ula is port(
+entity alu is port(
     Data_a, Data_b      : in std_logic_vector(15 downto 0);
     ALUControlOut       : in std_logic_vector(2 downto 0);
     EX_Shamt            : in std_logic_vector(3 downto 0);
     ALUOut              : out std_logic_vector(15 downto 0);
     Zero                : out std_logic
 );
-end ula;
+end alu;
 
-architecture Behavioral of ula is
+architecture Behavioral of alu is
     signal iALUOut      : std_logic_vector(15 downto 0);
 begin
     ALUOut <= iALUOut;

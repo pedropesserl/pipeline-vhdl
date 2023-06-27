@@ -4,8 +4,8 @@ use ieee.std_logic_signed.all;
 
 entity ControlUnit is port(
 	OPCode				: in std_logic_vector(2 downto 0);
-	MemRead, MemWrite, MemtoReg,
-	RegWrite, RegDest, Branch, ALUSrc, DisplayEnable	: out std_logic;
+	MemRead, MemWrite, MemtoReg, RegWrite, 
+	RegDest, Branch, ALUSrc, DisplayEnable	: out std_logic;
 	ALUOp 				: out std_logic_vector(2 downto 0)
 );
 end ControlUnit;
@@ -92,7 +92,7 @@ begin
 				ALUSrc <= '1';
 				DisplayEnable <= '0';
 				
-			when "110" => 		--sw
+			when "11" => 		--sw
 				memRead <= '0';
 				memWrite <= '0';
 				memtoReg <= '0';

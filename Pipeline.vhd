@@ -4,7 +4,7 @@ use ieee.std_logic_signed.all;
 
 entity Pipeline is 
     port (
-        clk: in std_logic;
+        GlobalClk: in std_logic;
     );
 end Pipeline;
 
@@ -27,7 +27,7 @@ architecture Behavioral of Pipeline is
         EX_MemRead							:in std_logic;
         EX_Rd								:in std_logic_vector(1 downto 0);
         ID_Instruction						: in std_logic_vector(15 downto 0);
-        PCWrite, IF_ID_Write, StallMux		: out std_logic
+        PCWrite, IF_ID_Write, Flush 		: out std_logic
     );
     end component;
 
@@ -40,7 +40,7 @@ architecture Behavioral of Pipeline is
     end component;
 
     component PC is port(
-            clk, MEM_Branch, MEM_Zero           : in std_logic;
+            clk, MEM_Branch, MEM_Zero, PCWrite  : in std_logic;
             MEM_BeqAddress, NewPC               : in std_logic_vector(15 downto 0);
 
             CurrPC                              : out std_logic_vector(15 downto 0)
@@ -87,6 +87,7 @@ architecture Behavioral of Pipeline is
     );
     end component;
     
+    signal LocalClk : std_logic;
     --as declarações são correspondentes ao local onde são inicializadas e não ao primeiro uso
     -- IF Declarations
     signal CurrPC, NewPC, Instruction : std_logic_vector(15 downto 0);
@@ -112,9 +113,9 @@ begin
     --signal opcode : std_logic_vector(2 downto 0); 
     -- opcode  <= Instruction(15 downto 13);
     -- IF 
-    R_EXE_MEM: EX_MEM port map (
-        EX_BeqAddres => BeqAdress;
-        sinal fora do componente => sinal dentro do componente
+    PC: PC port map (
+        LocalClk => clk;
+        => 
     );
     
     -- ID

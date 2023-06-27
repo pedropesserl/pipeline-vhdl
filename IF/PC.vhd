@@ -19,7 +19,7 @@ begin
     -- Add if in the rising edge
     process(clk)
     begin
-        if (rising_edge(clk) && (PCWrite = '1')) then
+        if (rising_edge(clk) and (PCWrite = '1')) then
             CurrPC <= mux_out;
         end if;
     end process;

@@ -92,12 +92,12 @@ begin
 				ALUSrc <= '1';
 				DisplayEnable <= '0';
 				
-			when "11" => 		--sw
+			when "111" => 		--dsp
 				memRead <= '0';
 				memWrite <= '0';
 				memtoReg <= '0';
 				RegWrite <= '0';
-				RegDest <= '0';		--dsp
+				RegDest <= '0';
 				Branch <= '0';
 				ALUOp <= "000";
 				ALUSrc <= '0';

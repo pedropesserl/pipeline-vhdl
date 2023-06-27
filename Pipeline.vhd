@@ -79,9 +79,9 @@ architecture Behavioral of Pipeline is
     end component;
 
     component data_mem is port(
-        MEM_ALUOut, MEM_WriteData 			: in std_logic_vector(15 downto 0);
-        clk, MEM_MemWrite, MEM_MemRead		: in std_logic;
-        ReadData 					        : out std_logic_vector(15 downto 0)
+        ALUOut, WriteData 			: in std_logic_vector(15 downto 0);
+        clk, MemWrite, MemRead			: in std_logic;
+        ReadData 				: out std_logic_vector(15 downto 0)
     ); 
     end component;
 
@@ -265,12 +265,50 @@ begin
     end process;
 
     -- EX
+	
 
 
     -- MEM
+	data_mem: data_memory port map (
+		LocalClk => clk;
+		MEM_MemRead => MemRead;	--sinal para ler da mem
+		EX_MemWrite => MemWrite;	--sinal para escrever na mem
+		MEM_WriteData => WriteData;	--o dado a ser escrito
+		MEM_ALUOut => ALUOut;	--endereco de memoria
+		MEM_ReadData => ReadData;	--dado lido da memoria
+	);
 
+	Reg_MEM_WB: process(LocalClk)
+	begin 
+		if (rising_edge(LocalClk)) then
+			WB_MemtoReg <= MEM_MemtoReg;
+			WB_RegtoW <= MEM_RegtoW; ----------APAGAR???????
+			WB_RegWrite <= MEM_RegWrite;
+			WB_ReadData <= ReadData;
+			wb_ALUOut <= MEM_ALUOut;
+			WB_Rd <= MEM_Rd;
+			WB_DisplayEnable <= MEM_DisplayEnable;
+			WB_DisplayData <= MEM_DisplayData; ------------DECLARAAAAAAAAAAAAR -----------------
+		end if;
+	end process;
     -- WB
 --sinal do display sai dessa fase 
+	Display: display port map (
+		LocalClk => clk;
+		WB_DisplayEnable => DisplayEnable;
+		WB_DisplayData => DisplayData;
+		----FALTA COISAAAAAAAAAAAAA
+	);
+
+	--mux para escolher o dado a ser escrito no banco de registradores
+	WB_Data <= WB_ReadData when WB_MemtoReg = '1' else WB_ALUOut;
+
+	RegisterBank: register_bank port map (
+		
+	);
+
+
+
 end Behavioral;
     -- exemplo de como pegar dado do registrador
     --R_EXE_MEM; EX_MEM port map (

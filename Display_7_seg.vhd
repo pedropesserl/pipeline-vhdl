@@ -9,13 +9,13 @@ entity Display_7_seg is port(
 );
 end Display_7_seg;
 
-architecture Behavioral of Display is
+architecture Behavioral of Display_7_seg is
 begin
     process(clk, WriteEnable) is
     begin
-        if rising_edge(clk) and Write_Enable = '1' then
-            case Data is
-                -- presume que os segmentos são ativos em 0
+        if rising_edge(clk) and WriteEnable = '1' then
+            case DataIn is
+                -- presume que os segmentos so ativos em 0
                 when "0000" => segments <= "0000001"; -- 0
                 when "0001" => segments <= "1001111"; -- 1
                 when "0010" => segments <= "0010010"; -- 2
@@ -32,6 +32,7 @@ begin
                 when "1101" => segments <= "1000010"; -- d
                 when "1110" => segments <= "0110000"; -- E
                 when "1111" => segments <= "0111000"; -- F
+                when others => report "Inalcançável";
             end case;
         end if;
     end process;

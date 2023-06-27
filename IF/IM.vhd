@@ -6,7 +6,7 @@ entity IM is port(
     clk                       : in std_logic;
     CurrPC_out                     : in std_logic_vector(15 downto 0);
 
-    Instrution                : out std_logic_vector(15 downto 0)
+    Instruction                : out std_logic_vector(15 downto 0)
 );  
 end IM;
 
@@ -39,7 +39,7 @@ begin
     process(clk)
     begin 
         if(rising_edge(clk)) then
-            Instrution <= memory(to_integer(unsigned(CurrPC_out)));
+            Instruction <= memory(to_integer(unsigned(CurrPC_out)));
         end if;
     end process;
 

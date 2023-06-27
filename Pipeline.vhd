@@ -307,8 +307,6 @@ begin
 		
 	);
 
-
-
 end Behavioral;
     -- exemplo de como pegar dado do registrador
     --R_EXE_MEM; EX_MEM port map (

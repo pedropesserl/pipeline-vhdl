@@ -9,6 +9,12 @@ entity Pipeline is
 end Pipeline;
 
 architecture Behavioral of Pipeline is
+    component Clk_Enlarger is port(
+        clk_in :        in std_logic;
+        clk_out :       out std_logic
+    );
+    end component;
+
     component ALUcontrol is port (
         EX_ALUOp, EX_Func           : in std_logic_vector(2 downto 0);
         ALUControlOut               : out std_logic_vector(2 downto 0)
@@ -93,6 +99,7 @@ architecture Behavioral of Pipeline is
     signal IF_CurrPC, IF_NewPC, IF_Instruction : std_logic_vector(15 downto 0);
     signal IF_PCWrite, IF_ID_Write : std_logic;
     -- PCsrc nn existe mais, eh só passar Branch e Zero que vem do MEM
+    --NewPC eh PC+4
 
     -- ID Declarations
     -- coming from IF
@@ -132,12 +139,20 @@ architecture Behavioral of Pipeline is
 begin
     --signal opcode : std_logic_vector(2 downto 0); 
     -- opcode  <= Instruction(15 downto 13);
+    
+    Clk: Clk_Enlarger port map (
+        GlobalClk => clk_in;
+        LocalClk => clk_out;
+    );
+
     -- IF 
     PC: PC port map (
         LocalClk => clk;
         MEM_Branch => MEM_Branch;
         MEM_Zero => MEM_Zero;
         ID_PCWrite => PCWrite;
+        MEM_BeqAddress => MEM_BeqAddress;
+        NewPC;
     );
     
     -- ID

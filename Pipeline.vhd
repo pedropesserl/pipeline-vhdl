@@ -17,8 +17,8 @@ architecture Behavioral of Pipeline is
 
     component ControlUnit is port(
         OPCode				        : in std_logic_vector(2 downto 0);
-        MemRead, MemWrite, MemtoReg,
-        RegWrite, RegDest, Branch 	: out std_logic;
+        MemRead, MemWrite, MemtoReg, RegWrite, 
+        RegDest, Branch, ALUSrc, DisplayEnable 	: out std_logic;
         ALUOp 				        : out std_logic_vector(2 downto 0)
     );
     end component;
@@ -27,7 +27,7 @@ architecture Behavioral of Pipeline is
         EX_MemRead							:in std_logic;
         EX_Rd								:in std_logic_vector(1 downto 0);
         ID_Instruction						: in std_logic_vector(15 downto 0);
-        PCWrite, IF_ID_Write, Stall_Mux		: out std_logic
+        PCWrite, IF_ID_Write, StallMux		: out std_logic
     );
     end component;
 
@@ -81,7 +81,7 @@ architecture Behavioral of Pipeline is
 
     component Display is port(
         Data               : in std_logic_vector(15 downto 0);
-        Display_Enable, clk: in std_logic;
+        DisplayEnable, clk: in std_logic;
         Char0, Char1,
         Char2, Char3       : out std_logic_vector(6 downto 0);
     );
@@ -107,10 +107,24 @@ architecture Behavioral of Pipeline is
 
     -- MEM Declarations
     signal BeqAddress, WriteData, ReadData : std_logic_vector(15 downto 0);
-    signal Branch, Zero : std_logic;
 
 begin
+    --signal opcode : std_logic_vector(2 downto 0); 
+    -- opcode  <= Instruction(15 downto 13);
+    -- IF 
+    R_EXE_MEM: EX_MEM port map (
+        EX_BeqAddres => BeqAdress;
+        sinal fora do componente => sinal dentro do componente
+    );
+    
+    -- ID
+--flush eh pra limpar id_ex
+    -- EX
 
+    -- MEM
+
+    -- WB
+--sinal do display sai dessa fase 
 end Behavioral;
     -- exemplo de como pegar dado do registrador
     --R_EXE_MEM; EX_MEM port map (

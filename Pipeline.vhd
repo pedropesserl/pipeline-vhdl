@@ -174,7 +174,6 @@ begin
     end process;
 
     -- ID
---flush eh pra limpar id_ex
     HazardUnit: HazardDetectionUnit port map (
         EX_MemRead => EX_MemRead;
         EX_Zero => zero;
@@ -227,11 +226,46 @@ begin
     Reg_ID_EX: process(LocalClk)
     begin 
         if (rising_edge(LocalClk) and ID_Flush = '0') then
-            
+            EX_MemRead <= ID_MemRead;
+            EX_MemWrite <= ID_MemWrite;
+            EX_MemtoReg <= ID_MemtoReg;
+            EX_RegWrite <= ID_RegWrite;
+            EX_RegDest <= ID_RegDest;
+            EX_Branch <= ID_Branch;
+            EX_ALUSrc <= ID_ALUSrc;
+            EX_DisplayEnable <= ID_DisplayEnable;
+            EX_Rs <= ID_Rs;
+            EX_Rt <= ID_Rt;
+            EX_Rd <= ID_Rd;
+            EX_Func <= ID_Func;
+            EX_Shamt <= ID_Shamt;
+            EX_RegA <= ID_RegA;
+            EX_RegB <= ID_RegB;
+            EX_NewPC <= ID_NewPC;
+            EX_ExtendedImm <= ID_ExtendedImm;
+        elsif (rising_edge(LocalClk) and (ID_Flush = '1')) then
+            EX_MemRead <= '0';
+            EX_MemWrite <= '0';
+            EX_MemtoReg <= '0';
+            EX_RegWrite <= '0';
+            EX_RegDest <= '0';
+            EX_Branch <= '0';
+            EX_ALUSrc <= '0';
+            EX_DisplayEnable <= '0';
+            EX_Rs <= ID_Rs;
+            EX_Rt <= ID_Rt;
+            EX_Rd <= ID_Rd;
+            EX_Func <= ID_Func;
+            EX_Shamt <= ID_Shamt;
+            EX_RegA <= ID_RegA;
+            EX_RegB <= ID_RegB;
+            EX_NewPC <= ID_NewPC;
+            EX_ExtendedImm <= ID_ExtendedImm;
         end if;
     end process;
 
     -- EX
+
 
     -- MEM
 

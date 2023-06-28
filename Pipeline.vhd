@@ -115,7 +115,7 @@ architecture Behavioral of Pipeline is
     signal ID_PCWrite, IF_ID_Write : std_logic := '1';
     signal ID_Rs, ID_Rt, ID_Rd	: std_logic_vector(1 downto 0) := (others => '0');
     signal ID_OPCode, ID_Func, ID_ALUOp : std_logic_vector(2 downto 0) := (others => '0');
-	signal ID_Shamt : std_logic_vector(3 downto 0) := (others => '0');
+	 signal ID_Shamt : std_logic_vector(3 downto 0) := (others => '0');
     signal ID_RegA, ID_RegB, ID_ExtendedImm : std_logic_vector(15 downto 0) := (others => '0');
 
     -- EX Declarations
@@ -148,17 +148,17 @@ architecture Behavioral of Pipeline is
     signal WB_Data, WB_DisplayData : std_logic_vector(15 downto 0) := (others => '0');
 begin	
     -- Arrumando clk para o tamanho certo
-    -- Clk: Clk_Enlarger port map (
-    --     clk_in => GlobalClk,
-    --     clk_out => LocalClk
-    -- );
+	 Clk: Clk_Enlarger port map (
+         clk_in => GlobalClk,
+         clk_out => LocalClk
+    );
     -- Para simulacao dentro do ISE
-    LocalClk <= GlobalClk;
+    -- LocalClk <= GlobalClk;
 
 -- #####################################################################
 -- 				IF
 -- #####################################################################
-    -- como a memória é um array de 16 bits, acessamos diretamente a palavra
+    -- como a memria  um array de 16 bits, acessamos diretamente a palavra
     IF_NewPC <= IF_CurrPC + x"0001";
 
     PC_label: PC port map (
@@ -216,7 +216,7 @@ begin
     -- estender imediato
     with ID_Instruction(8) select ID_ExtendedImm <=
         "0000000" & ID_Instruction(8 downto 0) when '0',
-        "1111111" & ID_Instruction(8 downto 0) when '1';
+        "1111111" & ID_Instruction(8 downto 0) when others;
         
     ControlUnit_label: ControlUnit port map (
         OPCode => ID_OPCode,

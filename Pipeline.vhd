@@ -5,6 +5,7 @@ use ieee.std_logic_signed.all;
 entity Pipeline is 
     port (
         GlobalClk: in std_logic;
+        dsp0, dsp1, dsp2, dsp3 : out std_logic_vector(6 downto 0)
     );
 end Pipeline;
 
@@ -39,7 +40,7 @@ architecture Behavioral of Pipeline is
 
     component forwarding_unit is port(
         MEM_RegWrite, WB_RegWrite               : in std_logic;
-        EX_Rs, EX_Rt, MEM_Rd, WB_Rd             : in std_logic_vector(3 downto 0);
+        EX_Rs, EX_Rt, MEM_Rd, WB_Rd             : in std_logic_vector(1 downto 0);
 
         forwardA, forwardB                      : out std_logic_vector(1 downto 0)
     );
@@ -89,7 +90,13 @@ architecture Behavioral of Pipeline is
         Data                    : in std_logic_vector(15 downto 0);
         DisplayEnable, clk      : in std_logic;
         Char0, Char1,
-        Char2, Char3            : out std_logic_vector(6 downto 0);
+        Char2, Char3            : out std_logic_vector(6 downto 0)
+    );
+    end component;
+
+    component calc_BeqAddress is port(
+        EX_NewPC, EX_extended_imm		: in std_logic_vector(15 downto 0);
+        BeqAddress				: out std_logic_vector(15 downto 0)
     );
     end component;
     
@@ -97,76 +104,77 @@ architecture Behavioral of Pipeline is
     
     -- IF Declarations
     signal IF_CurrPC, IF_NewPC, IF_Instruction : std_logic_vector(15 downto 0) := (others => '0');
-    -- PCsrc nn existe mais, eh só passar Branch e Zero que vem do MEM
+    -- PCsrc nn existe mais, eh s passar Branch e Zero que vem do MEM
     --NewPC eh PC+4
 
     -- ID Declarations
     -- coming from IF
-    signal ID_Instruction, ID_NewPC : std_logic_vector(15 downto 0);
+    signal ID_Instruction, ID_NewPC : std_logic_vector(15 downto 0) := (others => '0');
     -- created during ID
-    signal ID_Flush, ID_MemRead,
-    	   ID_MemWrite, ID_MemtoReg, ID_RegWrite, ID_RegDest, ID_Branch, ID_ALUSrc, ID_DisplayEnable : std_logic;
+    signal ID_Flush, ID_MemRead, ID_MemWrite, ID_MemtoReg, ID_RegWrite, ID_RegDest, ID_Branch, ID_ALUSrc, ID_DisplayEnable : std_logic := '0';
     signal ID_PCWrite, IF_ID_Write : std_logic := '1';
-    signal ID_Rs, ID_Rt, ID_Rd	: std_logic_vector(1 downto 0);
-    signal ID_OPCode, ID_Func, ID_ALUOp : std_logic_vector(2 downto 0);
-	signal ID_Shamt : std_logic_vector(3 downto 0);
-    signal ID_RegA, ID_RegB, ID_ExtendedImm : std_logic_vector(15 downto 0);
+    signal ID_Rs, ID_Rt, ID_Rd	: std_logic_vector(1 downto 0) := (others => '0');
+    signal ID_OPCode, ID_Func, ID_ALUOp : std_logic_vector(2 downto 0) := (others => '0');
+	signal ID_Shamt : std_logic_vector(3 downto 0) := (others => '0');
+    signal ID_RegA, ID_RegB, ID_ExtendedImm : std_logic_vector(15 downto 0) := (others => '0');
 
     -- EX Declarations
     -- coming from ID
     signal EX_MemRead, EX_MemWrite, EX_MemtoReg, EX_RegWrite, EX_RegDest, EX_Branch, EX_ALUSrc, EX_DisplayEnable : std_logic := '0';
     signal EX_Rs, EX_Rt, EX_Rd	: std_logic_vector(1 downto 0) := (others => '0');
-    signal EX_Func : std_logic_vector(2 downto 0);
-	signal EX_Shamt : std_logic_vector(3 downto 0);
-    signal EX_RegA, EX_RegB, EX_NewPC, EX_ExtendedImm : std_logic_vector(15 downto 0);
+    signal EX_Func, EX_ALUOp : std_logic_vector(2 downto 0) := (others => '0');
+	signal EX_Shamt : std_logic_vector(3 downto 0) := (others => '0');
+    signal EX_RegA, EX_RegB, EX_NewPC, EX_ExtendedImm : std_logic_vector(15 downto 0) := (others => '0');
     -- created during EX
     signal EX_Zero : std_logic := '0';
-    signal EX_ForwardA, EX_ForwardB, EX_RegtoW: std_logic_vector(1 downto 0);
-    signal EX_ALUControlOut : std_logic_vector(2 downto 0); 
-    signal EX_ALUOut, EX_BeqAddress, EX_Data_a, EX_Data_b, EX_WriteData : std_logic_vector(15 downto 0);
+    signal EX_ForwardA, EX_ForwardB, EX_RegtoW: std_logic_vector(1 downto 0) := (others => '0');
+    signal EX_ALUControlOut : std_logic_vector(2 downto 0) := (others => '0');  
+    signal EX_ALUOut, EX_BeqAddress, EX_Data_a, EX_Data_b, EX_WriteData : std_logic_vector(15 downto 0) := (others => '0');
 
     -- MEM Declarations
     -- coming from EX  --WriteData eh DadoB
     signal MEM_MemRead, MEM_MemWrite, MEM_MemtoReg, MEM_RegWrite, MEM_Branch, MEM_Zero, MEM_DisplayEnable : std_logic := '0';
     signal MEM_RegtoW: std_logic_vector(1 downto 0) := (others => '0');
-    signal MEM_BeqAddress, MEM_ALUOut, MEM_WriteData : std_logic_vector(15 downto 0);
+    signal MEM_BeqAddress, MEM_ALUOut, MEM_WriteData : std_logic_vector(15 downto 0) := (others => '0');
     -- created during MEM
-    signal MEM_ReadData : std_logic_vector(15 downto 0);
+    signal MEM_ReadData : std_logic_vector(15 downto 0) := (others => '0');
 
     -- WB Declarations
     -- coming from MEM
     signal WB_MemtoReg, WB_RegWrite, WB_DisplayEnable : std_logic := '0';
     signal WB_RegtoW: std_logic_vector(1 downto 0) := (others => '0');
-    signal WB_ALUOut, WB_ReadData : std_logic_vector(15 downto 0);
+    signal WB_ALUOut, WB_ReadData : std_logic_vector(15 downto 0) := (others => '0');
     -- created during WB
     signal WB_Data, WB_DisplayData : std_logic_vector(15 downto 0) := (others => '0');
 
 begin	
     -- Arrumando clk para o tamanho certo
-    Clk: Clk_Enlarger port map (
-        GlobalClk => clk_in;
-        LocalClk => clk_out;
-    );
+    -- Clk: Clk_Enlarger port map (
+    --     clk_in => GlobalClk,
+    --     clk_out => LocalClk
+    -- );
+    -- Para simulacao dentro do ISE
+    LocalClk <= GlobalClk;
 
 -- #####################################################################
 -- 				IF
 -- #####################################################################
-    IF_NewPC <= IF_CurrPC + 4;
+    IF_NewPC <= IF_CurrPC + x"0002";
 
-    PC: PC port map (
-	clk => LocalClk;
-	MEM_Branch => MEM_Branch;
-	MEM_Zero => MEM_Zero;
-	PCWrite => ID_PCWrite;
-        MEM_BeqAddress => MEM_BeqAddress;
-	NewPC => IF_NewPC;
-	CurrPC => IF_CurrPC;
+    PC_label: PC port map (
+        clk => LocalClk,
+        MEM_Branch => MEM_Branch,
+        MEM_Zero => MEM_Zero,
+        PCWrite => ID_PCWrite,
+        MEM_BeqAddress => MEM_BeqAddress,
+        NewPC => IF_NewPC,
+        CurrPC => IF_CurrPC
     );
 
     InstMem: IM port map (
-	clk => LocalClk;
-	CurrPC_out => IF_CurrPC;
-	Instruction => IF_Instruction;
+        clk => LocalClk,
+        CurrPC_out => IF_CurrPC,
+        Instruction => IF_Instruction
     );
     
     Reg_IF_ID: process(LocalClk)
@@ -181,13 +189,13 @@ begin
 -- 				ID
 -- #####################################################################
     HazardUnit: HazardDetectionUnit port map (
-	EX_MemRead => EX_MemRead;
-	zero => EX_Zero;
-	EX_Rd => EX_Rd;
-	ID_Instruction => ID_Instruction;
-	PCWrite => ID_PCWrite;
-	IF_ID_Write => IF_ID_Write;
-	Flush => ID_Flush;
+        EX_MemRead => EX_MemRead,
+        zero => EX_Zero,
+        EX_Rd => EX_Rd,
+        ID_Instruction => ID_Instruction,
+        PCWrite => ID_PCWrite,
+        IF_ID_Write => IF_ID_Write,
+        Flush => ID_Flush
     );
     
     ID_OPCode <= ID_Instruction(15 downto 13);
@@ -198,128 +206,130 @@ begin
 	ID_Shamt <= ID_Instruction(6 downto 3);
     process(ID_Instruction)
     begin
-        if (ID_Instruction(8 downto 8) = "0") then -- se imediato era positivo 
+        if (ID_Instruction(8) = '0') then -- se imediato era positivo 
             ID_ExtendedImm <= ("0000000" & ID_Instruction(8 downto 0));
         else
             ID_ExtendedImm <= ("1111111" & ID_Instruction(8 downto 0));
         end if;
     end process;
 
-    ControlUnit: ControlUnit port map (
-	OPCode => ID_OPCode;
-	MemRead => ID_MemRead;
-	MemWrite => ID_MemWrite;
-	MemtoReg => ID_MemtoReg;
-	RegWrite => ID_RegWrite;
-	RegDest => ID_RegDest;
-	Branch => ID_Branch;
-	ALUSrc => ID_ALUSrc;
-	DisplayEnable => ID_DisplayEnable;
-	ALUOp => ID_ALUOp;
-    ):
+    ControlUnit_label: ControlUnit port map (
+        OPCode => ID_OPCode,
+        MemRead => ID_MemRead,
+        MemWrite => ID_MemWrite,
+        MemtoReg => ID_MemtoReg,
+        RegWrite => ID_RegWrite,
+        RegDest => ID_RegDest,
+        Branch => ID_Branch,
+        ALUSrc => ID_ALUSrc,
+        DisplayEnable => ID_DisplayEnable,
+        ALUOp => ID_ALUOp
+    );
     
     RegBank: RegisterBank port map (
-	RFonteA => ID_Rs;
-	RFonteB => ID_Rt;
-	RDest => WB_RegtoW;
-	Data => WB_Data;
-	RegWrite => WB_RegWrite;
-	clk => LocalClk;
-	DataA => ID_RegA;
-	DataB => ID_RegB;
+        RFonteA => ID_Rs,
+        RFonteB => ID_Rt,
+        RDest => WB_RegtoW,
+        Data => WB_Data,
+        RegWrite => WB_RegWrite,
+        clk => LocalClk,
+        DataA => ID_RegA,
+        DataB => ID_RegB
     );
 
     Reg_ID_EX: process(LocalClk)
     begin 
-        if (rising_edge(LocalClk) and ID_Flush = '0') then
-            EX_MemRead <= ID_MemRead;
-            EX_MemWrite <= ID_MemWrite;
-            EX_MemtoReg <= ID_MemtoReg;
-            EX_RegWrite <= ID_RegWrite;
-            EX_RegDest <= ID_RegDest;
-            EX_Branch <= ID_Branch;
-            EX_ALUSrc <= ID_ALUSrc;
-            EX_DisplayEnable <= ID_DisplayEnable;
-            EX_Rs <= ID_Rs;
-            EX_Rt <= ID_Rt;
-            EX_Rd <= ID_Rd;
-            EX_Func <= ID_Func;
-            EX_Shamt <= ID_Shamt;
-            EX_RegA <= ID_RegA;
-            EX_RegB <= ID_RegB;
-            EX_NewPC <= ID_NewPC;
-            EX_ExtendedImm <= ID_ExtendedImm;
-        elsif (rising_edge(LocalClk) and (ID_Flush = '1')) then
-            EX_MemRead <= '0';
-            EX_MemWrite <= '0';
-            EX_MemtoReg <= '0';
-            EX_RegWrite <= '0';
-            EX_RegDest <= '0';
-            EX_Branch <= '0';
-            EX_ALUSrc <= '0';
-            EX_DisplayEnable <= '0';
-            EX_Rs <= ID_Rs;
-            EX_Rt <= ID_Rt;
-            EX_Rd <= ID_Rd;
-            EX_Func <= ID_Func;
-            EX_Shamt <= ID_Shamt;
-            EX_RegA <= ID_RegA;
-            EX_RegB <= ID_RegB;
-            EX_NewPC <= ID_NewPC;
-            EX_ExtendedImm <= ID_ExtendedImm;
+        if (rising_edge(LocalClk)) then
+            if ID_Flush = '1' then
+                EX_MemRead <= '0';
+                EX_MemWrite <= '0';
+                EX_MemtoReg <= '0';
+                EX_RegWrite <= '0';
+                EX_RegDest <= '0';
+                EX_Branch <= '0';
+                EX_ALUSrc <= '0';
+                EX_DisplayEnable <= '0';
+                EX_Rs <= ID_Rs;
+                EX_Rt <= ID_Rt;
+                EX_Rd <= ID_Rd;
+                EX_Func <= ID_Func;
+                EX_Shamt <= ID_Shamt;
+                EX_RegA <= ID_RegA;
+                EX_RegB <= ID_RegB;
+                EX_NewPC <= ID_NewPC;
+                EX_ExtendedImm <= ID_ExtendedImm;
+            else
+                EX_MemRead <= ID_MemRead;
+                EX_MemWrite <= ID_MemWrite;
+                EX_MemtoReg <= ID_MemtoReg;
+                EX_RegWrite <= ID_RegWrite;
+                EX_RegDest <= ID_RegDest;
+                EX_Branch <= ID_Branch;
+                EX_ALUSrc <= ID_ALUSrc;
+                EX_DisplayEnable <= ID_DisplayEnable;
+                EX_Rs <= ID_Rs;
+                EX_Rt <= ID_Rt;
+                EX_Rd <= ID_Rd;
+                EX_Func <= ID_Func;
+                EX_Shamt <= ID_Shamt;
+                EX_RegA <= ID_RegA;
+                EX_RegB <= ID_RegB;
+                EX_NewPC <= ID_NewPC;
+                EX_ExtendedImm <= ID_ExtendedImm;
+            end if;
         end if;
     end process;
 -- #####################################################################
 -- 				EX
 -- #####################################################################
-	forwarding_unit: forwarding_unit port map (
-		EX_Rs => EX_Rs;
-		EX_Rt => EX_Rt;
-		MEM_RegWrite => MEM_RegWrite;
-		MEM_Rd => MEM_RegtoW;
-		WB_RegWrite => WB_RegWrite;
-		WB_Rd => WB_RegtoW;
-		forwardA => EX_ForwardA;
-		forwardB => EX_ForwardB;
+	forwarding_unit_label: forwarding_unit port map (
+		EX_Rs => EX_Rs,
+		EX_Rt => EX_Rt,
+		MEM_RegWrite => MEM_RegWrite,
+		MEM_Rd => MEM_RegtoW,
+		WB_RegWrite => WB_RegWrite,
+		WB_Rd => WB_RegtoW,
+		forwardA => EX_ForwardA,
+		forwardB => EX_ForwardB
 	); 
 
 	--mux do registrador de escrita
 	EX_RegtoW <= EX_Rt when EX_RegDest = '0' else EX_Rd;
 
 	--mux primeiro operando da ALU
-	EX_Data_a <= EX_RegA when EX_ForwardA = '00' else
-		MEM_ALUOut when EX_ForwardA = '01' else
-		WB_ALUOut when EX_ForwardA = '10' else
-		"0";
+	EX_Data_a <= EX_RegA when EX_ForwardA = "00" else
+		MEM_ALUOut when EX_ForwardA = "01" else
+		WB_ALUOut when EX_ForwardA = "10" else
+		x"0000";
 
 	--mux segundo operando da ALU
-	EX_WriteData <= EX_RegB when EX_ForwardB = '00' else
-		MEM_ALUOut when EX_ForwardB = '01' else
-		WB_ALUOut when EX_ForwardB = '10' else
-		"0";
+	EX_WriteData <= EX_RegB when EX_ForwardB = "00" else
+		MEM_ALUOut when EX_ForwardB = "01" else
+		WB_ALUOut when EX_ForwardB = "10" else
+		x"0000";
 
 	EX_Data_b <= EX_WriteData when EX_ALUSrc = '0' else
 		EX_ExtendedImm;
 	
-	ALUControl: ALUControl port map (
-		EX_Func => EX_Func;
-		EX_ALUOp => EX_ALUOp;
-		ALUControlOut => EX_ALUControlOut;
+	ALUControl_label: ALUControl port map (
+		EX_Func => EX_Func,
+		EX_ALUOp => EX_ALUOp,
+		ALUControlOut => EX_ALUControlOut
 	);
 
-	ALU: ALU port map (
-		Data_a => EX_Data_a;
-		Data_b => EX_Data_b;
-		ALUControlOut => EX_ALUControlOut;
-		ALUOut => EX_ALUOut;
-		Zero => EX_Zero;
-		EX_Shamt => EX_Shamt;
+	ALU_label: ALU port map (
+		Data_a => EX_Data_a,
+		Data_b => EX_Data_b,
+		ALUControlOut => EX_ALUControlOut,
+		ALUOut => EX_ALUOut,
+		Zero => EX_Zero,
+		EX_Shamt => EX_Shamt
 	);
 
-	calc_BeqAddress: calc_BeqAddress port map (
-		EX_NewPC => EX_NewPC;
-		EX_extended_imm => EX_ExtendedImm;
-		BeqAddress => EX_BeqAddress;
+	calc_BeqAddress_label: calc_BeqAddress port map (
+		EX_NewPC => EX_NewPC,
+		EX_extended_imm => EX_ExtendedImm,
+		BeqAddress => EX_BeqAddress
 	);
 
 	Reg_EX_MEM: process(LocalClk)
@@ -342,13 +352,13 @@ begin
 -- #####################################################################
 -- 				MEM
 -- #####################################################################
-	data_mem: data_memory port map (
-		clk => LocalClk;
-		MemWrite => EX_MemWrite;
-		MemRead => MEM_MemRead;
-		WriteData => MEM_WriteData;
-		ALUOut => MEM_ALUOut;
-		ReadData => MEM_ReadData;
+	data_mem_label: data_mem port map (
+		clk => LocalClk,
+		MemWrite => EX_MemWrite,
+		MemRead => MEM_MemRead,
+		WriteData => MEM_WriteData,
+		ALUOut => MEM_ALUOut,
+		ReadData => MEM_ReadData
 	);
 
 	Reg_MEM_WB: process(LocalClk)
@@ -356,7 +366,7 @@ begin
 		if (rising_edge(LocalClk)) then
 			WB_MemtoReg <= MEM_MemtoReg;
 			WB_RegWrite <= MEM_RegWrite;
-			WB_ReadData <= ReadData;
+			WB_ReadData <= MEM_ReadData;
 			WB_ALUOut <= MEM_ALUOut;
 			WB_RegtoW <= MEM_RegtoW;
 			WB_DisplayEnable <= MEM_DisplayEnable;
@@ -374,10 +384,14 @@ begin
 
 	WB_DisplayData <= WB_AluOut;
 
-	Display: display port map (
-		clk => LocalClk;
-		DisplayEnable => WB_DisplayEnable;
-		DisplayData => WB_DisplayData;
+	Display_label: Display port map (
+		clk => LocalClk,
+		DisplayEnable => WB_DisplayEnable,
+		Data => WB_DisplayData,
+        Char0 => dsp0,
+        Char1 => dsp1,
+        Char2 => dsp2,
+        Char3 => dsp3
 	);
 
 end Behavioral;

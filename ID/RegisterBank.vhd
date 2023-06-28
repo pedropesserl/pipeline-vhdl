@@ -18,7 +18,7 @@ begin
     DataB <= Regs(to_integer(unsigned(RFonteB)));
     process(clk) is
     begin
-        if falling_edge(clk) and RegWrite = '1' and Rd /= "00" then
+        if falling_edge(clk) and RegWrite = '1' and RDest /= "00" then
             Regs(to_integer(unsigned(RDest))) <= Data;
         end if;
     end process;

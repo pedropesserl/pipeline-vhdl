@@ -20,7 +20,7 @@ begin
     rs <= ID_Instruction(12 downto 11);
     rt <= ID_Instruction(10 downto 9);
 
-	process (ID_Instruction, EX_MemRead, EX_Rd)
+	process (ID_Instruction, EX_MemRead, EX_Rd, rs, rt, opcode, zero)
 	begin 
 
         -- Dependencia de lw, se tiver pegando dado de uma lw que esta no EX

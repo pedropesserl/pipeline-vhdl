@@ -4,7 +4,7 @@ use ieee.std_logic_signed.all;
 
 entity forwarding_unit is port(
     MEM_RegWrite, WB_RegWrite               : in std_logic;
-    EX_Rs, EX_Rt, MEM_Rd, WB_Rd             : in std_logic_vector(3 downto 0);
+    EX_Rs, EX_Rt, MEM_Rd, WB_Rd             : in std_logic_vector(1 downto 0);
 
     forwardA, forwardB                      : out std_logic_vector(1 downto 0)
 );

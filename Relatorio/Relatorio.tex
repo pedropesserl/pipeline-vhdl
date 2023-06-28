@@ -51,31 +51,27 @@ Por isso, as instruções seguem a base do MIPS, tendo sua divisão reorganizada
         \caption{Formato das instruções do tipo I.}
         \end{figure}
 \end{itemize}
-
 As instruções suportadas são:
-\begin{multicols}{3}
-    \begin{itemize}
+\begin{multicols}{4}
+\begin{itemize}
         \item ADD
         \item AND
         \item OR 
         \item NOR
+        \columnbreak
         \item Set Less Than
-    \end{itemize}
-    \columnbreak
-    \begin{itemize}
         \item Shift Left Logical
         \item Shift Right Logical
         \item ADDI
+        \columnbreak
         \item ANDI
-    \end{itemize}
-    \columnbreak
-    \begin{itemize}
+        \item Display
         \item ORI
+        \columnbreak
         \item Branch On Equal
         \item Load Word
         \item Store Word
-    \end{itemize}
-\raggedcolumns
+\end{itemize}
 \end{multicols}
 
 \section{A arquitetura e sua implementação.}
@@ -85,17 +81,16 @@ utilizando a linguagem VHDL.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=.7\linewidth]{placeholder.jpg}
+    \includegraphics[width=.9\linewidth]{arquitetura.png}
     \caption{Bloco operacional do MIPS Pipeline.}
 \end{figure}
 
-\section{Os componentes.}
+\section{Os Componentes.}
 \begin{enumerate}
     \item \textbf{Instruction Fetch}.
 
     Sendo a primeira parte da execução de uma instrução, é onde o ponteiro para a
-    memória de instruções (Instruction Memory) é calculado e ela é lida, guardando tal
-    instrução e sua localização no registrador intermediário IF\_ID.
+    memória de instruções (Instruction Memory) é calculado e ela é lida, guardando tal instrução e sua localização no registrador intermediário IF\_ID. O PC pode ser atualizado para a próxima instrução, somando dois, ou para o endereço do Branch.
 
     \item \textbf{Instruction Decode}.
 
@@ -127,13 +122,21 @@ utilizando a linguagem VHDL.
 
     O único componente presente é a memória de dados (Memory Data), o componente mais
     lento do Pipeline. Usada apenas nas funções de Load Word e Store Word, a memória
-    possui 128 KiB de armazenamento com 12 bits cada linha. Por fim, os dados carregados
+    possui 512 Bytes de armazenamento com 16 bits cada linha. Por fim, os dados carregados
     são passados para o registrador intermediário MEM\_WB.
     
     \item \textbf{Write-Back}.
 
     Sendo a última etapa do MIPS Pipeline, ela guarda no banco de registradores o
-    dado de saída da ALU ou a palavra carregada da Memory Data.
+    dado de saída da ALU ou a palavra carregada da Memory Data. Por fim, o display também é acessado.
 \end{enumerate}
+
+\section{O Clock.}
+    O Pipeline opera a uma frequência diferente do FPGA, tendo um clock mais lento que facilite a visualização de seu funcionamento. Para garantir isso, foi criado um componente para calcular o novo clock que será utilizado por todo o circuito.
+
+\section{O Programa de Teste.}
+    Foi escrito um programa simples como teste das funcionalidades do MIPS Pipeline. O 
+    programa calcula os 10 primeiros números da sequência de Fibonacci, e cria sinais de
+    saída para displays de sete segmentos, para cada dígito dos resultados.
 
 \end{document}

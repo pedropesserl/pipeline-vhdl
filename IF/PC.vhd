@@ -11,16 +11,20 @@ entity PC is port(
 end PC;
 
 architecture Behavioral of PC is
-    signal mux_out : std_logic_vector(15 downto 0);
+    signal mux_out : std_logic_vector(15 downto 0) := (others => '0');
+    signal internal_PC : std_logic_vector(15 downto 0) := (others => '0');
 begin 
     --mux 
     mux_out <= MEM_BeqAddress when (MEM_Branch = '1' and MEM_Zero = '1') else NewPC;
 
     -- Add if in the rising edge
+    CurrPC <= internal_PC;
     process(clk)
     begin
         if (rising_edge(clk) and (PCWrite = '1')) then
-            CurrPC <= mux_out;
+            internal_PC <= mux_out;
+        else
+            internal_PC <= internal_PC;
         end if;
     end process;
 

@@ -15,20 +15,21 @@ architecture Behavioral of IM is
     type mem_type is array (0 to 255) of std_logic_vector(15 downto 0);	--CurrPC is the address
 
     signal memory: mem_type := (
+        "0000000000000000", -- nop (compensar offset PC-memoria)
         "0010001000001010", -- addi $1, $0, 10
         "0010010000000000", -- addi $2, $0, 0
         "0010011000000001", -- addi $3, $0, 1
         --loop:
-        "1000100000001000", -- beq $1, $0, out (+8)
+        "1000100000000110", -- beq $1, $0, out (NewPC+6)
         "1111000000000000", -- dsp $2;
         "0001011100000000", -- add $2, $2, $3
-        "1000100000000101", -- beq $1, $0, out (+5)
+        "1000100000000011", -- beq $1, $0, out (NewPC+3)
         "1111100000000000", -- dsp $3
         "0001011110000000", -- add $3, $2, $3
-        "0010001111111111", -- addi $1, $0, -1
-        "1000000111111001", -- beq $0, $0, loop (-7)
+        "0010101111111111", -- addi $1, $1, -1
+        "1000000111110111", -- beq $0, $0, loop (-9)
         --out:
-        "1000000111110101", -- beq $0, $0, main (-11)
+        "1000000111110011", -- beq $0, $0, main (-13)
         others => (others => '0')
     );	--initialize memory
     signal addr_intern : std_logic_vector(7 downto 0) := (others => '0');

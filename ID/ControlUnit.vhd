@@ -67,7 +67,7 @@ begin
 				RegDest <= '0';		--rt
 				Branch <= '1';
 				ALUOp <= "001";
-				ALUSrc <= '1';
+				ALUSrc <= '0';
 				DisplayEnable <= '0';
 				
 			when "101" => 		--lw

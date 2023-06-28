@@ -105,7 +105,7 @@ architecture Behavioral of Pipeline is
     -- IF Declarations
     signal IF_CurrPC, IF_NewPC, IF_Instruction : std_logic_vector(15 downto 0) := (others => '0');
     -- PCsrc nn existe mais, eh s passar Branch e Zero que vem do MEM
-    --NewPC eh PC+4
+    --NewPC eh PC+1
 
     -- ID Declarations
     -- coming from IF
@@ -146,7 +146,6 @@ architecture Behavioral of Pipeline is
     signal WB_ALUOut, WB_ReadData : std_logic_vector(15 downto 0) := (others => '0');
     -- created during WB
     signal WB_Data, WB_DisplayData : std_logic_vector(15 downto 0) := (others => '0');
-
 begin	
     -- Arrumando clk para o tamanho certo
     -- Clk: Clk_Enlarger port map (
@@ -205,15 +204,12 @@ begin
     ID_Rd <= ID_Instruction(8 downto 7);
 	ID_Shamt <= ID_Instruction(6 downto 3);
     ID_Func <= ID_Instruction(2 downto 0);
-    process(ID_Instruction)
-    begin
-        if (ID_Instruction(8) = '0') then -- se imediato era positivo 
-            ID_ExtendedImm <= ("0000000" & ID_Instruction(8 downto 0));
-        else
-            ID_ExtendedImm <= ("1111111" & ID_Instruction(8 downto 0));
-        end if;
-    end process;
 
+    -- estender imediato
+    with ID_Instruction(8) select ID_ExtendedImm <=
+        "0000000" & ID_Instruction(8 downto 0) when '0',
+        "1111111" & ID_Instruction(8 downto 0) when '1';
+        
     ControlUnit_label: ControlUnit port map (
         OPCode => ID_OPCode,
         MemRead => ID_MemRead,
@@ -250,6 +246,28 @@ begin
                 EX_Branch <= '0';
                 EX_ALUSrc <= '0';
                 EX_DisplayEnable <= '0';
+                
+                ----------------
+                ID_MemRead <= '0';
+                ID_MemWrite <= '0';
+                ID_MemtoReg <= '0';
+                ID_RegWrite <= '0';
+                ID_RegDest <= '0';
+                ID_Branch <= '0';
+                ID_ALUSrc <= '0';
+                ID_DisplayEnable <= '0';
+                ----------------
+                ----------------
+                IF_MemRead <= '0';
+                IF_MemWrite <= '0';
+                IF_MemtoReg <= '0';
+                IF_RegWrite <= '0';
+                IF_RegDest <= '0';
+                IF_Branch <= '0';
+                IF_ALUSrc <= '0';
+                IF_DisplayEnable <= '0';
+                ----------------
+
                 EX_Rs <= ID_Rs;
                 EX_Rt <= ID_Rt;
                 EX_Rd <= ID_Rd;
@@ -296,21 +314,22 @@ begin
 		forwardB => EX_ForwardB
 	); 
 
-	--mux do registrador de escrita
+	-- mux do registrador de escrita
 	EX_RegtoW <= EX_Rt when EX_RegDest = '0' else EX_Rd;
 
-	--mux primeiro operando da ALU
+	-- mux primeiro operando da ALU
 	EX_Data_a <= EX_RegA    when EX_ForwardA = "00" else
 		         MEM_ALUOut when EX_ForwardA = "01" else
 		         WB_ALUOut  when EX_ForwardA = "10" else
 		         x"0000";
 
-	--mux segundo operando da ALU
+	-- mux segundo operando da ALU
 	EX_WriteData <= EX_RegB    when EX_ForwardB = "00" else
 		            MEM_ALUOut when EX_ForwardB = "01" else
 		            WB_ALUOut  when EX_ForwardB = "10" else
 		            x"0000";
 
+    -- outro mux do segundo operando da ALU
 	EX_Data_b <= EX_WriteData when EX_ALUSrc = '0' else
 		         EX_ExtendedImm;
 	

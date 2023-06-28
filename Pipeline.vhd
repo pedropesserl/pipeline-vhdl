@@ -247,28 +247,6 @@ begin
                 EX_Branch <= '0';
                 EX_ALUSrc <= '0';
                 EX_DisplayEnable <= '0';
-                
-                ----------------
-                ID_MemRead <= '0';
-                ID_MemWrite <= '0';
-                ID_MemtoReg <= '0';
-                ID_RegWrite <= '0';
-                ID_RegDest <= '0';
-                ID_Branch <= '0';
-                ID_ALUSrc <= '0';
-                ID_DisplayEnable <= '0';
-                ----------------
-                ----------------
-                IF_MemRead <= '0';
-                IF_MemWrite <= '0';
-                IF_MemtoReg <= '0';
-                IF_RegWrite <= '0';
-                IF_RegDest <= '0';
-                IF_Branch <= '0';
-                IF_ALUSrc <= '0';
-                IF_DisplayEnable <= '0';
-                ----------------
-
                 EX_Rs <= ID_Rs;
                 EX_Rt <= ID_Rt;
                 EX_Rd <= ID_Rd;

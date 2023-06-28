@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_signed.all;
 
 entity HazardDetectionUnit is port(
-	EX_MemRead, EX_Zero, EX_Branch                  : in std_logic;
+	EX_MemRead, MEM_Zero, MEM_Branch                : in std_logic;
 	EX_Rd								            : in std_logic_vector(1 downto 0);
 	ID_Instruction						            : in std_logic_vector(15 downto 0);
 	PCWrite, IF_ID_Write, Flush		                : out std_logic
@@ -16,7 +16,7 @@ begin
     rs <= ID_Instruction(12 downto 11);
     rt <= ID_Instruction(10 downto 9);
 
-	process (ID_Instruction, EX_MemRead, EX_Rd, rs, rt, EX_Zero, EX_Branch)
+	process (ID_Instruction, EX_MemRead, EX_Rd, rs, rt, MEM_Zero, MEM_Branch)
 	begin 
 
         -- Dependencia de lw, se tiver pegando dado de uma lw que esta no EX
@@ -31,10 +31,10 @@ begin
 			PCWrite <=      '0';
 			IF_ID_Write <=  '0';
         -- dependencia de beq, se tiver pegando coisa e der o salto
-		elsif((EX_Branch = '1') and (EX_Zero = '1')) then
+		elsif((MEM_Branch = '1') and (MEM_Zero = '1')) then
             Flush <=        '1';
             PCWrite <=      '1';
-            IF_ID_Write <=  '0';
+            IF_ID_Write <=  '1';
         -- caso tudo certo
         else
             Flush <=        '0';

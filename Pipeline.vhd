@@ -31,7 +31,7 @@ architecture Behavioral of Pipeline is
     end component;
     
     component HazardDetectionUnit is port(
-        EX_MemRead, EX_Zero, EX_Branch		: in std_logic;
+        EX_MemRead, MEM_Zero, MEM_Branch	: in std_logic;
         EX_Rd								: in std_logic_vector(1 downto 0);
         ID_Instruction						: in std_logic_vector(15 downto 0);
         PCWrite, IF_ID_Write, Flush 		: out std_logic
@@ -179,9 +179,15 @@ begin
     
     Reg_IF_ID: process(LocalClk)
     begin 
-        if (rising_edge(LocalClk) and IF_ID_Write = '1') then
-            ID_Instruction <= IF_Instruction;
-            ID_NewPC <= IF_NewPC;
+        if (rising_edge(LocalClk)) then
+            if ID_Flush = '1' then
+                ID_Instruction <= "0";
+            elsif IF_ID_Write = '1' then
+                ID_Instruction <= IF_Instruction;
+                ID_NewPC <= IF_NewPC;
+            else
+                ID_Instruction <= ID_Instruction;
+                ID_NewPC <= ID_NewPC;
         end if;
     end process;
 
@@ -190,8 +196,8 @@ begin
 -- #####################################################################
     HazardUnit: HazardDetectionUnit port map (
         EX_MemRead => EX_MemRead,
-        EX_Zero => EX_Zero,
-        EX_Branch => EX_Branch,
+        MEM_Zero => MEM_Zero,
+        MEM_Branch => MEM_Branch,
         EX_Rd => EX_Rd,
         ID_Instruction => ID_Instruction,
         PCWrite => ID_PCWrite,
@@ -336,17 +342,31 @@ begin
 	Reg_EX_MEM: process(LocalClk)
 	begin
 		if (rising_edge(LocalClk)) then
-			MEM_MemRead <= EX_MemRead;
-			MEM_MemWrite <= EX_MemWrite;
-			MEM_MemtoReg <= EX_MemtoReg;
-			MEM_RegWrite <= EX_RegWrite;
-			MEM_RegtoW <= EX_RegtoW;
-			MEM_ALUOut <= EX_ALUOut;
-			MEM_BeqAddress <= EX_BeqAddress;
-			MEM_Zero <= EX_Zero;
-			MEM_DisplayEnable <= EX_DisplayEnable;
-			MEM_Branch <= EX_Branch;
-			MEM_WriteData <= EX_WriteData;
+            if ID_Flush = '1' then
+                MEM_MemRead <= '0';
+                MEM_MemWrite <= '0';
+                MEM_MemtoReg <= '0';
+                MEM_RegWrite <= '0';
+                MEM_RegtoW <= "0";
+                MEM_ALUOut <= "0";
+                MEM_BeqAddress <= "0";
+                MEM_Zero <= '0';
+                MEM_DisplayEnable <= '0';
+                MEM_Branch <= '0';
+                MEM_WriteData <= "0";
+            else
+                MEM_MemRead <= EX_MemRead;
+                MEM_MemWrite <= EX_MemWrite;
+                MEM_MemtoReg <= EX_MemtoReg;
+                MEM_RegWrite <= EX_RegWrite;
+                MEM_RegtoW <= EX_RegtoW;
+                MEM_ALUOut <= EX_ALUOut;
+                MEM_BeqAddress <= EX_BeqAddress;
+                MEM_Zero <= EX_Zero;
+                MEM_DisplayEnable <= EX_DisplayEnable;
+                MEM_Branch <= EX_Branch;
+                MEM_WriteData <= EX_WriteData;
+            end if;
 		end if;
 	end process;
 

@@ -31,7 +31,7 @@ architecture Behavioral of Pipeline is
     end component;
     
     component HazardDetectionUnit is port(
-        EX_MemRead, Zero					: in std_logic;
+        EX_MemRead, EX_Zero, EX_Branch		: in std_logic;
         EX_Rd								: in std_logic_vector(1 downto 0);
         ID_Instruction						: in std_logic_vector(15 downto 0);
         PCWrite, IF_ID_Write, Flush 		: out std_logic
@@ -190,7 +190,8 @@ begin
 -- #####################################################################
     HazardUnit: HazardDetectionUnit port map (
         EX_MemRead => EX_MemRead,
-        zero => EX_Zero,
+        EX_Zero => EX_Zero,
+        EX_Branch => EX_Branch,
         EX_Rd => EX_Rd,
         ID_Instruction => ID_Instruction,
         PCWrite => ID_PCWrite,

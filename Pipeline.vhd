@@ -5,8 +5,8 @@ use ieee.std_logic_signed.all;
 entity Pipeline is 
     port (
         GlobalClk: in std_logic;
-        D_CA, D_CB, D_CC, D_CD,
-        D_CE, D_CF, D_CG       : out std_logic_vector(6 downto 0)
+        CPorts: out std_logic_vector(6 downto 0);
+        CharEnable: out std_logic_vector(3 downto 0)
     );
 end Pipeline;
 
@@ -90,8 +90,8 @@ architecture Behavioral of Pipeline is
     component Display is port(
         Data              : in std_logic_vector(15 downto 0);
         DisplayEnable, clk: in std_logic;
-        CA, CB, CC, CD,
-        CE, CF, CG        : out std_logic_vector(6 downto 0)
+        CPorts            : out std_logic_vector(7 downto 0);
+        CharEnable        : out std_logic_vector(3 downto 0);
     );
     end component;
 
@@ -116,7 +116,7 @@ architecture Behavioral of Pipeline is
     signal ID_PCWrite, IF_ID_Write : std_logic := '1';
     signal ID_Rs, ID_Rt, ID_Rd	: std_logic_vector(1 downto 0) := (others => '0');
     signal ID_OPCode, ID_Func, ID_ALUOp : std_logic_vector(2 downto 0) := (others => '0');
-	 signal ID_Shamt : std_logic_vector(3 downto 0) := (others => '0');
+	signal ID_Shamt : std_logic_vector(3 downto 0) := (others => '0');
     signal ID_RegA, ID_RegB, ID_ExtendedImm : std_logic_vector(15 downto 0) := (others => '0');
 
     -- EX Declarations
@@ -411,13 +411,8 @@ begin
 		clk => LocalClk,
 		DisplayEnable => WB_DisplayEnable,
 		Data => WB_DisplayData,
-        CA => D_CA,
-        CB => D_CB,
-        CC => D_CC,
-        CD => D_CD,
-        CE => D_CE,
-        CF => D_CF,
-        CG => D_CG
+        CPorts => CPorts,
+        CharEnable => CharEnable
 	);
 
 end Behavioral;

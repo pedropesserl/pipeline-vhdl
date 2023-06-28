@@ -5,34 +5,42 @@ use ieee.numeric_std.all;
 entity Display is port(
     Data              : in std_logic_vector(15 downto 0);
     DisplayEnable, clk: in std_logic;
-    CA, CB, CC, CD,
-    CE, CF, CG        : out std_logic_vector(3 downto 0)
+    CPorts            : out std_logic_vector(7 downto 0);
+    CharEnable        : out std_logic_vector(3 downto 0)
 );
 end Display;
 
 architecture Behavioral of Display is
-    component Display_7_seg is port(
-        DataIn          : in std_logic_vector(3 downto 0);
-        WriteEnable, clk: in std_logic;
-        segments        : out std_logic_vector(6 downto 0)
+    component Display_cod is port(
+        DataIn  : in std_logic_vector(3 downto 0);
+        segments: out std_logic_vector(6 downto 0)
     );
     end component;
-    type Display_type is array (0 to 3) of std_logic_vector(6 downto 0);
-    signal DisplayOut: Display_type := (others => (others => '0'));
+    signal segments: std_logic_vector(6 downto 0) := (others => '0');
+    signal Data2Encode: std_logic_vector(3 downto 0) := (others => '0');
 begin
-    gen_chars: for i in 0 to 3 generate
-        c: Display_7_seg port map(
-            clk => clk,
-            DataIn => Data(4*i+3 downto 4*i),
-            WriteEnable => DisplayEnable,
-            segments => DisplayOut(i)
-        );
-    end generate;
-    CA <= DisplayOut(0)(6) & DisplayOut(1)(6) & DisplayOut(2)(6) & DisplayOut(3)(6);
-    CB <= DisplayOut(0)(5) & DisplayOut(1)(5) & DisplayOut(2)(5) & DisplayOut(3)(5);
-    CC <= DisplayOut(0)(4) & DisplayOut(1)(4) & DisplayOut(2)(4) & DisplayOut(3)(4);
-    CD <= DisplayOut(0)(3) & DisplayOut(1)(3) & DisplayOut(2)(3) & DisplayOut(3)(3);
-    CE <= DisplayOut(0)(2) & DisplayOut(1)(2) & DisplayOut(2)(2) & DisplayOut(3)(2);
-    CF <= DisplayOut(0)(1) & DisplayOut(1)(1) & DisplayOut(2)(1) & DisplayOut(3)(1);
-    CG <= DisplayOut(0)(0) & DisplayOut(1)(0) & DisplayOut(2)(0) & DisplayOut(3)(0);
+    cod: Display_cod port map (
+        DataIn => Data2Encode,
+        segments => segments
+    ); 
+
+    Display: process is
+    begin
+        if DisplayEnable = '1' then
+            for i in 0 to 3 loop
+                case i is
+                    when 0 => CharEnable <= "1110";
+                              Data2Encode <= Data(3 downto 0);
+                    when 1 => CharEnable <= "1101";
+                              Data2Encode <= Data(7 downto 4);
+                    when 2 => CharEnable <= "1011";
+                              Data2Encode <= Data(11 downto 8);
+                    when 3 => CharEnable <= "0111";
+                              Data2Encode <= Data(15 downto 12);
+                end case;
+                CPors <= segments;
+                wait for 20 ms;
+            end loop;
+        end if;
+    end process;
 end Behavioral;

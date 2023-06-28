@@ -5,8 +5,8 @@ use ieee.numeric_std.all;
 entity Display is port(
     Data              : in std_logic_vector(15 downto 0);
     DisplayEnable, clk: in std_logic;
-    Char0, Char1,
-    Char2, Char3      : out std_logic_vector(6 downto 0)
+    CA, CB, CC, CD,
+    CE, CF, CG        : out std_logic_vector(3 downto 0)
 );
 end Display;
 
@@ -28,8 +28,11 @@ begin
             segments => DisplayOut(i)
         );
     end generate;
-    Char0 <= DisplayOut(0);
-    Char1 <= DisplayOut(1);
-    Char2 <= DisplayOut(2);
-    Char3 <= DisplayOut(3);
+    CA <= DisplayOut(0)(6) & DisplayOut(1)(6) & DisplayOut(2)(6) & DisplayOut(3)(6);
+    CB <= DisplayOut(0)(5) & DisplayOut(1)(5) & DisplayOut(2)(5) & DisplayOut(3)(5);
+    CC <= DisplayOut(0)(4) & DisplayOut(1)(4) & DisplayOut(2)(4) & DisplayOut(3)(4);
+    CD <= DisplayOut(0)(3) & DisplayOut(1)(3) & DisplayOut(2)(3) & DisplayOut(3)(3);
+    CE <= DisplayOut(0)(2) & DisplayOut(1)(2) & DisplayOut(2)(2) & DisplayOut(3)(2);
+    CF <= DisplayOut(0)(1) & DisplayOut(1)(1) & DisplayOut(2)(1) & DisplayOut(3)(1);
+    CG <= DisplayOut(0)(0) & DisplayOut(1)(0) & DisplayOut(2)(0) & DisplayOut(3)(0);
 end Behavioral;

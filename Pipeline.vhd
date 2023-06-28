@@ -5,7 +5,8 @@ use ieee.std_logic_signed.all;
 entity Pipeline is 
     port (
         GlobalClk: in std_logic;
-        dsp0, dsp1, dsp2, dsp3 : out std_logic_vector(6 downto 0)
+        D_CA, D_CB, D_CC, D_CD,
+        D_CE, D_CF, D_CG       : out std_logic_vector(6 downto 0)
     );
 end Pipeline;
 
@@ -87,10 +88,10 @@ architecture Behavioral of Pipeline is
     end component;
 
     component Display is port(
-        Data                    : in std_logic_vector(15 downto 0);
-        DisplayEnable, clk      : in std_logic;
-        Char0, Char1,
-        Char2, Char3            : out std_logic_vector(6 downto 0)
+        Data              : in std_logic_vector(15 downto 0);
+        DisplayEnable, clk: in std_logic;
+        CA, CB, CC, CD,
+        CE, CF, CG        : out std_logic_vector(6 downto 0)
     );
     end component;
 
@@ -410,10 +411,13 @@ begin
 		clk => LocalClk,
 		DisplayEnable => WB_DisplayEnable,
 		Data => WB_DisplayData,
-        Char0 => dsp0,
-        Char1 => dsp1,
-        Char2 => dsp2,
-        Char3 => dsp3
+        CA => D_CA,
+        CB => D_CB,
+        CC => D_CC,
+        CD => D_CD,
+        CE => D_CE,
+        CF => D_CF,
+        CG => D_CG
 	);
 
 end Behavioral;

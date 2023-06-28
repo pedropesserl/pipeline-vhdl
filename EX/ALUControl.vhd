@@ -14,7 +14,7 @@ begin
         ALUControlOut <= 
             "000"   when "000",                --soma
             "001"   when "001",                --subtracao
-            "010"   when "010",                 --and
+            "010"   when "010",                --and
             "011"   when "011",                --or
-            EX_Func when others;                --instrucao tipo R
+            EX_Func when others;               --instrucao tipo R
 end Behavioral;

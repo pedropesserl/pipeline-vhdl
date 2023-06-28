@@ -159,7 +159,8 @@ begin
 -- #####################################################################
 -- 				IF
 -- #####################################################################
-    IF_NewPC <= IF_CurrPC + x"0002";
+    -- como a memória é um array de 16 bits, acessamos diretamente a palavra
+    IF_NewPC <= IF_CurrPC + x"0001";
 
     PC_label: PC port map (
         clk => LocalClk,
@@ -202,8 +203,8 @@ begin
     ID_Rs <= ID_Instruction(12 downto 11);
     ID_Rt <= ID_Instruction(10 downto 9);
     ID_Rd <= ID_Instruction(8 downto 7);
-    ID_Func <= ID_Instruction(2 downto 0);
 	ID_Shamt <= ID_Instruction(6 downto 3);
+    ID_Func <= ID_Instruction(2 downto 0);
     process(ID_Instruction)
     begin
         if (ID_Instruction(8) = '0') then -- se imediato era positivo 
@@ -252,6 +253,7 @@ begin
                 EX_Rs <= ID_Rs;
                 EX_Rt <= ID_Rt;
                 EX_Rd <= ID_Rd;
+                EX_ALUOp <= ID_ALUOp;
                 EX_Func <= ID_Func;
                 EX_Shamt <= ID_Shamt;
                 EX_RegA <= ID_RegA;
@@ -270,6 +272,7 @@ begin
                 EX_Rs <= ID_Rs;
                 EX_Rt <= ID_Rt;
                 EX_Rd <= ID_Rd;
+                EX_ALUOp <= ID_ALUOp;
                 EX_Func <= ID_Func;
                 EX_Shamt <= ID_Shamt;
                 EX_RegA <= ID_RegA;
@@ -297,19 +300,19 @@ begin
 	EX_RegtoW <= EX_Rt when EX_RegDest = '0' else EX_Rd;
 
 	--mux primeiro operando da ALU
-	EX_Data_a <= EX_RegA when EX_ForwardA = "00" else
-		MEM_ALUOut when EX_ForwardA = "01" else
-		WB_ALUOut when EX_ForwardA = "10" else
-		x"0000";
+	EX_Data_a <= EX_RegA    when EX_ForwardA = "00" else
+		         MEM_ALUOut when EX_ForwardA = "01" else
+		         WB_ALUOut  when EX_ForwardA = "10" else
+		         x"0000";
 
 	--mux segundo operando da ALU
-	EX_WriteData <= EX_RegB when EX_ForwardB = "00" else
-		MEM_ALUOut when EX_ForwardB = "01" else
-		WB_ALUOut when EX_ForwardB = "10" else
-		x"0000";
+	EX_WriteData <= EX_RegB    when EX_ForwardB = "00" else
+		            MEM_ALUOut when EX_ForwardB = "01" else
+		            WB_ALUOut  when EX_ForwardB = "10" else
+		            x"0000";
 
 	EX_Data_b <= EX_WriteData when EX_ALUSrc = '0' else
-		EX_ExtendedImm;
+		         EX_ExtendedImm;
 	
 	ALUControl_label: ALUControl port map (
 		EX_Func => EX_Func,

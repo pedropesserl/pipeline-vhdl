@@ -10,7 +10,7 @@ end calc_BeqAddress;
 
 architecture Behavioral of calc_BeqAddress is
 begin
-	--pc novo + imm shifted 2 bits
-	BeqAddress <= EX_NewPC + (EX_extended_imm(13 downto 0) & "00");
+	--pc novo + imm (não precisa shiftar porque indexamos a memória pela palavra)
+	BeqAddress <= EX_NewPC + EX_extended_imm;
 
 end Behavioral;

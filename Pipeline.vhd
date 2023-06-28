@@ -181,13 +181,14 @@ begin
     begin 
         if (rising_edge(LocalClk)) then
             if ID_Flush = '1' then
-                ID_Instruction <= "0";
+                ID_Instruction <= x"0000";
             elsif IF_ID_Write = '1' then
                 ID_Instruction <= IF_Instruction;
                 ID_NewPC <= IF_NewPC;
             else
                 ID_Instruction <= ID_Instruction;
                 ID_NewPC <= ID_NewPC;
+            end if;
         end if;
     end process;
 
@@ -347,13 +348,13 @@ begin
                 MEM_MemWrite <= '0';
                 MEM_MemtoReg <= '0';
                 MEM_RegWrite <= '0';
-                MEM_RegtoW <= "0";
-                MEM_ALUOut <= "0";
-                MEM_BeqAddress <= "0";
+                MEM_RegtoW <= "00";
+                MEM_ALUOut <= x"0000";
+                MEM_BeqAddress <= x"0000";
                 MEM_Zero <= '0';
                 MEM_DisplayEnable <= '0';
                 MEM_Branch <= '0';
-                MEM_WriteData <= "0";
+                MEM_WriteData <= x"0000";
             else
                 MEM_MemRead <= EX_MemRead;
                 MEM_MemWrite <= EX_MemWrite;

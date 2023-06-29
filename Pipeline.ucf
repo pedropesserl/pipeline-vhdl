@@ -1,0 +1,17 @@
+
+# PlanAhead Generated physical constraints 
+
+NET "CharEnable[0]" LOC = N16;
+NET "CharEnable[1]" LOC = N15;
+NET "CharEnable[2]" LOC = P18;
+NET "CharEnable[3]" LOC = P17;
+NET "CPorts[7]" LOC = T17;
+NET "CPorts[6]" LOC = T18;
+NET "CPorts[5]" LOC = U17;
+NET "CPorts[4]" LOC = U18;
+NET "CPorts[3]" LOC = M14;
+NET "CPorts[2]" LOC = N14;
+NET "CPorts[1]" LOC = L14;
+NET "CPorts[0]" LOC = M13;
+NET "GlobalClk" LOC = V10;
+NET "clk_out" LOC = U16;

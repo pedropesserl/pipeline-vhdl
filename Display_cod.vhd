@@ -2,13 +2,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity Display_cod is port(
+entity DisplayCod is port(
     DataIn  : in std_logic_vector(3 downto 0);
     segments: out std_logic_vector(6 downto 0)
 );
-end Display_cod;
+end entity DisplayCod;
 
-architecture Behavioral of Display_cod is
+architecture Behavioral of DisplayCod is
 begin
     with DataIn select segments <=
         "0000001" when "0000", -- 0

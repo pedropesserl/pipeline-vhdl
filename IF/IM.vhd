@@ -16,7 +16,7 @@ architecture Behavioral of IM is
 
     signal memory: mem_type := (
         "0000000000000000", -- nop (compensar offset PC-memoria)
-        "0010001000001010", -- addi $1, $0, 10
+        "0010001000001111", -- addi $1, $0, 10
         "0010010000000000", -- addi $2, $0, 0
         "0010011000000001", -- addi $3, $0, 1
         --loop:

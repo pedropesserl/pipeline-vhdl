@@ -22,8 +22,6 @@ begin
     begin
         if rising_edge(clk_in) then
             clk_counter <= clk_counter + x"000001";
-            -- Mudar a frequencia do clock, o menor do basys 2 eh 25MHz
-            -- logo diminur a frequencia para 2Hz e ter um clock time de 0,5 segundos
             if clk_counter = max_freq_hex then
                 clk_counter <= (others => '0');
                 clk_inter <= not clk_inter;

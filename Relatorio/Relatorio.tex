@@ -30,7 +30,7 @@ registradores.
 \end{singlespace}
 \end{abstract}
 
-\section{As Instruções.}
+\section{As instruções.}
 As divisões dos bits para os endereços e funcionalidades das instruções foi pensada
 visando evitar bits soltos e manter um espaço considerável para cada funcionalidade.
 Por isso, as instruções seguem a base do MIPS, tendo sua divisão reorganizada para
@@ -85,12 +85,18 @@ utilizando a linguagem VHDL.
     \caption{Bloco operacional do MIPS Pipeline.}
 \end{figure}
 
-\section{Os Componentes.}
+\section{Os estágios e componentes.}
 \begin{enumerate}
     \item \textbf{Instruction Fetch}.
 
     Sendo a primeira parte da execução de uma instrução, é onde o ponteiro para a
-    memória de instruções (Instruction Memory) é calculado e ela é lida, guardando tal instrução e sua localização no registrador intermediário IF\_ID. O PC pode ser atualizado para a próxima instrução, somando dois, ou para o endereço do Branch.
+    memória de instruções (Instruction Memory) é calculado e ela é lida, guardando
+    tal instrução e sua localização no registrador intermediário IF\_ID. O PC pode
+    ser atualizado para a próxima instrução, somando um*, ou para o endereço do Branch.
+
+    *OBS: Em VHDL, a memória de instruções foi implementada como uma array de vetores
+    de 16 bits; portanto, ela é indexada pela palavra e não pelo byte. Dessa forma,
+    a próxima posição do vetor é simplesmente a posição atual adicionada de 1.
 
     \item \textbf{Instruction Decode}.
 
@@ -101,22 +107,23 @@ utilizando a linguagem VHDL.
     sendo o primeiro sempre 0. Por fim, tem-se também nesse estágio a Hazarding Unit,
     a qual reconhece se a instrução sendo executada na proxima etapa irá desviar o fluxo
     de instruções, zerando as instruções que não serão mais executadas, um processo
-    denominado “flush”.
+    denominado “flush”. No flush, os sinais de controle nos registradores IF\_ID,
+    ID\_EX e EX\_MEM são zerados, efetivamente descartando as três instruções anteriores
+    ao branch que causou um desvio no código.
 
     \item \textbf{Execute}.
 
     Tendo os dados necessários para realizar a operação, nessa etapa temos a ULA,
     controlada pela ALUControl, a qual verifica se é uma instrução do tipo R para
-    realizar o “func” – últimos três bits da instrução – ou então uma soma,
+    realizar o “func” –- últimos três bits da instrução –- ou então uma soma,
     subtração, AND ou OR.
 
-    Nessa parte, também a calculado o endereço do Branch on Equal,  bastando concatenar
-    “00” ao fim do immediato extendido (bits 13 ao 0) e somar ao novo PC, passado pelos
-    registradores intermediarios. Por fim, um componente importante para o desempenho do
-    pipeline, a Forwarding Unit, é implementado na etapa. Esse componente é responsável
-    por evitar stalls no processador ao receber dados de etapas seguintes, não sendo
-    necessária a espera da escrita nos registradores – detalhada mais a frente – das
-    instruções anteriores.
+    Nessa parte, também é calculado o endereço do Branch On Equal, bastando somar ao
+    novo PC o imediato estendido com sinal, passado pelos registradores intermediários.
+    Por fim, um componente importante para o desempenho do pipeline, a Forwarding Unit,
+    é implementado nessa etapa. Esse componente é responsável por evitar stalls no
+    processador ao receber dados de etapas seguintes, não sendo necessária a espera da
+    escrita nos registradores –- detalhada mais à frente –- das instruções anteriores.
 
     \item \textbf{Memory}.
 
@@ -128,15 +135,57 @@ utilizando a linguagem VHDL.
     \item \textbf{Write-Back}.
 
     Sendo a última etapa do MIPS Pipeline, ela guarda no banco de registradores o
-    dado de saída da ALU ou a palavra carregada da Memory Data. Por fim, o display também é acessado.
+    dado de saída da ALU ou a palavra carregada da Memory Data. Também é nesse estágio
+    que o display acessa o registrador que foi determinado na instrução \texttt{dsp}
+    e decodifica seu conteúdo para ligar os segmentos necessários no componente.
 \end{enumerate}
 
-\section{O Clock.}
-    O Pipeline opera a uma frequência diferente do FPGA, tendo um clock mais lento que facilite a visualização de seu funcionamento. Para garantir isso, foi criado um componente para calcular o novo clock que será utilizado por todo o circuito.
+\section{O clock.}
+    O Pipeline opera a uma frequência diferente do FPGA, tendo um clock mais lento
+    que facilite a visualização de seu funcionamento. Para garantir isso, foi criado
+    um componente para calcular o novo clock que será utilizado por todo o circuito ---
+    o divisor de clock.
 
-\section{O Programa de Teste.}
+\section{O programa de teste.}
     Foi escrito um programa simples como teste das funcionalidades do MIPS Pipeline. O 
-    programa calcula os 10 primeiros números da sequência de Fibonacci, e cria sinais de
-    saída para displays de sete segmentos, para cada dígito dos resultados.
+    programa calcula os primeiros números da sequência de Fibonacci, e a lógica interna
+    cria sinais de saída para displays de sete segmentos, para cada dígito dos resultados
+    (que são armazenados em registradores no processador).
+
+\section{Como compilar e carregar o software no FPGA.}
+    O MIPS foi desenvolvido usando a plataforma Xilinx ISE, e seu código foi compilado
+    para o FPGA Digilent Nexys 3. Para carregar o código na placa, é necessário primeiro
+    baixar a plataforma e compilá-lo. As instruções para instalação do Xilinx ISE e do
+    software Digilent Adept (usado para carregar o código) estão descritas no arquivo
+    \texttt{install.md}, entregue no pacote \texttt{pipeline-vhdl.tar.gz}.
+
+    Após instalados, deve-se abrir um novo projeto na ISE, com as configurações do
+    FPGA utilizado (no caso, \textit{Family}: Spartan6, \textit{Device}: XC6SLX16,
+    \textit{Package}: CSG324), carregar todos os arquivos-fonte do pipeline e realizar o
+    mapeamento das suas portas de E/S --- isso é feito também pelo Xilinx ISE, da
+    seguinte forma:
+    \begin{itemize}
+        \item Página \textit{Design} $\rightarrow$ \textit{User Constraints}
+            $\rightarrow$ \textit{Create Timing Constraints};
+        \item Se for importado o arquivo \texttt{Pipeline.ucf}, o mapeamento das portas
+            de E/S já estará feito. Caso contrário, é necessário realizá-lo por meio de
+            \textit{I/O Pin Planning} --- o programa Plan-Ahead será aberto;
+        \item \textit{Implement Design};
+        \item \textit{Generate Programming File}: vários arquivos serão gerados no
+            diretório do projeto. O arquivo \texttt{Pipeline.bit} é o arquivo a ser
+            carregado no FPGA.
+    \end{itemize}
+    Depois de gerado o arquivo \texttt{.bit} necessário, será utilizado o pacote
+    Digilent Adept para carregá-lo na placa. Após conectar o FPGA no computador por
+    um cabo USB, em um terminal do Linux, use os seguintes comandos:
+
+    \texttt{djtgcfg enum} $\rightarrow$ Listar as placas reconhecidas pela porta USB;
+
+    \texttt{djtgcfg init -d Nexys3} $\rightarrow$ Inicializar o dispositivo Nexys3;
+
+    \texttt{djtgcfg prog -i 0 -d Nexys3 -f Pipeline.bit} $\rightarrow$ Carregar o arquivo
+    \texttt{Pipeline.bit} no dispositivo Nexys3.
+
+    Com o arquivo carregado, o FPGA começará a executar o programa.
 
 \end{document}
